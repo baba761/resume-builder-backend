@@ -109,10 +109,10 @@ app.post("/resume/create", upload.single("headshotImage"), async (req, res) => {
 //     res.sendFile(__dirname + "/index.html");
 // });
 
-app.use(express.static(path.join(__dirname, "../client/build")));
+app.use(express.static(path.join(__dirname, "/build")));
 
 app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "../client/build"));
+    res.sendFile(path.resolve(__dirname, "/build"));
 });
 
 app.listen(PORT, () => {
