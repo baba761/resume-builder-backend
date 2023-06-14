@@ -105,6 +105,10 @@ app.post("/resume/create", upload.single("headshotImage"), async (req, res) => {
     });
 });
 
+app.get("/", async (req, res) => {
+    res.sendFile(__dirname + "/index.html");
+});
+
 app.listen(PORT, () => {
     console.log(`Server listening on ${PORT}`);
 });
