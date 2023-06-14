@@ -15,7 +15,6 @@ const PORT = process.env.PORT;
 
 var corsOptions = {
     origin: ["https://resume-builder-rohit.netlify.app"],
-    credentials: true,
 };
 
 app.use(cors(corsOptions));
