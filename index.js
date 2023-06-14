@@ -105,8 +105,14 @@ app.post("/resume/create", upload.single("headshotImage"), async (req, res) => {
     });
 });
 
-app.get("/", async (req, res) => {
-    res.sendFile(__dirname + "/index.html");
+// app.get("/", async (req, res) => {
+//     res.sendFile(__dirname + "/index.html");
+// });
+
+app.use(express.static(path.join(__dirname, "../client/build")));
+
+app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "../client/build"));
 });
 
 app.listen(PORT, () => {
