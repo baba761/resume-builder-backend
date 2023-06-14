@@ -13,7 +13,15 @@ if (process.env.NODE_ENV !== "PRODUCTION") {
 
 const PORT = process.env.PORT;
 
-app.use(cors());
+var corsOptions = {
+    origin: [
+        "http://localhost:3000",
+        "https://resume-builder-rohit.netlify.app",
+    ],
+    credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static("uploads"));
 app.use(express.json());
