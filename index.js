@@ -13,10 +13,10 @@ if (process.env.NODE_ENV !== "PRODUCTION") {
 
 const PORT = process.env.PORT;
 
+app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static("uploads"));
 app.use(express.json());
-app.use(cors());
 
 const generateID = () => Math.random().toString(36).substring(2, 10);
 
@@ -105,14 +105,8 @@ app.post("/resume/create", upload.single("headshotImage"), async (req, res) => {
     });
 });
 
-// app.get("/", async (req, res) => {
-//     res.sendFile(__dirname + "/index.html");
-// });
-
-app.use(express.static(path.join(__dirname, "/build")));
-
-app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "/build/index.html"));
+app.get("/", async (req, res) => {
+    res.sendFile(__dirname + "/index.html");
 });
 
 app.listen(PORT, () => {
