@@ -14,10 +14,7 @@ if (process.env.NODE_ENV !== "PRODUCTION") {
 const PORT = process.env.PORT;
 
 var corsOptions = {
-    origin: [
-        "http://localhost:3000",
-        "https://resume-builder-rohit.netlify.app",
-    ],
+    origin: ["https://resume-builder-rohit.netlify.app"],
     credentials: true,
 };
 
