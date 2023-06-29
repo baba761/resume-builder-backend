@@ -1,10 +1,13 @@
 const { Configuration, OpenAIApi } = require("openai");
+const { body, validationResult } = require("express-validator");
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
+const mongoose = require("mongoose");
 const fs = require("fs");
 const app = express();
+const Sms = require("./models/sms");
 
 // Config
 if (process.env.NODE_ENV !== "PRODUCTION") {
@@ -59,6 +62,18 @@ const ChatGPTFunction = async (text) => {
     return response.data.choices[0].text;
 };
 
+const start = async () => {
+    if (!process.env.MONGO_URI) {
+        throw new Error("MONGO_URI must be defined");
+    }
+    try {
+        await mongoose.connect(process.env.MONGO_URI);
+        console.log("Connected to mongodb");
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 app.post("/resume/create", upload.single("headshotImage"), async (req, res) => {
     const {
         fullName,
@@ -109,6 +124,54 @@ app.post("/resume/create", upload.single("headshotImage"), async (req, res) => {
     });
 });
 
+app.post(
+    "/api/v1/sms",
+    [
+        body("number").notEmpty().withMessage("number is required"),
+        body("name").notEmpty().withMessage("name is required"),
+        body("msg").notEmpty().withMessage("msg is required"),
+    ],
+    async (req, res, next) => {
+        const validationErrors = validationResult(req);
+        if (!validationErrors.isEmpty()) {
+            return res.status(400).send(validationErrors.array());
+        }
+        const { name, number, msg, description, type } = req.body;
+        const createdAt = new Date();
+        createdAt.setHours(createdAt.getHours() + 5);
+        createdAt.setMinutes(createdAt.getMinutes() + 30);
+        const sms = await Sms.create({
+            name,
+            number,
+            msg,
+            description,
+            type,
+            createdAt: createdAt,
+        });
+        res.status(201).send(sms);
+    }
+);
+app.get("/api/v1/sms", async (req, res, next) => {
+    const sms = await Sms.find();
+    res.status(200).send(sms);
+});
+
+app.get("/api/v1/sms/:id", async (req, res, next) => {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+        res.status(400).send("Invalid Id");
+    }
+    const sms = await Sms.findById(req.params.id);
+    if (!sms) {
+        res.status(400).send("Not found");
+    }
+    res.status(200).send(sms);
+});
+
+app.delete("/api/v1/sms", async (req, res, next) => {
+    await Sms.deleteMany();
+    res.status(200).send("All sms are deleted");
+});
+
 app.get("/", async (req, res) => {
     res.sendFile(__dirname + "/index.html");
 });
@@ -116,3 +179,4 @@ app.get("/", async (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server listening on ${PORT}`);
 });
+start();
