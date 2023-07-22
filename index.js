@@ -8,6 +8,7 @@ const mongoose = require("mongoose");
 const fs = require("fs");
 const app = express();
 const Sms = require("./models/sms");
+const { error } = require("console");
 
 // Config
 if (process.env.NODE_ENV !== "PRODUCTION") {
@@ -152,11 +153,18 @@ app.post(
     }
 );
 app.get("/api/v1/sms", async (req, res, next) => {
-    const sms = await Sms.find();
-    res.status(200).send({
-        success: true,
-        data: sms,
-    });
+    try {
+        const sms = await Sms.find();
+        res.status(200).send({
+            success: true,
+            data: sms,
+        });
+    } catch (error) {
+        res.status(500).send({
+            success: false,
+            data: [],
+        });
+    }
 });
 
 app.get("/api/v1/sms/:id", async (req, res, next) => {
