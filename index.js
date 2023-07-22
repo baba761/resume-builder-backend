@@ -153,7 +153,10 @@ app.post(
 );
 app.get("/api/v1/sms", async (req, res, next) => {
     const sms = await Sms.find();
-    res.status(200).send(sms);
+    res.status(200).send({
+        success: true,
+        data: sms,
+    });
 });
 
 app.get("/api/v1/sms/:id", async (req, res, next) => {
