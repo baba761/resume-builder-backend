@@ -13,7 +13,7 @@ const User = require("./models/user");
 const { isAuthenticatedUser } = require("./auth");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
-
+const errorMiddleware = require("./middleware/error");
 // Config
 if (process.env.NODE_ENV !== "PRODUCTION") {
     require("dotenv").config({ path: "config.env" });
@@ -149,5 +149,8 @@ const smsRoute = require("./routes/sms");
 
 app.use("/api/v1", userRoute);
 app.use("/api/v1", smsRoute);
+
+// Middleware for Errors
+app.use(errorMiddleware);
 
 start();
