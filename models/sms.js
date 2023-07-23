@@ -23,6 +23,11 @@ const smsSchema = new mongoose.Schema(
         createdAt: {
             type: mongoose.Schema.Types.Date,
         },
+        user: {
+            type: mongoose.Schema.ObjectId,
+            ref: "User",
+            required: true,
+        },
     },
     {
         toJSON: {

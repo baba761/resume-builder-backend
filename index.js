@@ -9,6 +9,10 @@ const fs = require("fs");
 const app = express();
 const Sms = require("./models/sms");
 const { error } = require("console");
+const User = require("./models/user");
+const { isAuthenticatedUser } = require("./auth");
+const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
 
 // Config
 if (process.env.NODE_ENV !== "PRODUCTION") {
@@ -25,6 +29,8 @@ app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static("uploads"));
 app.use(express.json());
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 const generateID = () => Math.random().toString(36).substring(2, 10);
 
@@ -125,59 +131,6 @@ app.post("/resume/create", upload.single("headshotImage"), async (req, res) => {
     });
 });
 
-app.post(
-    "/api/v1/sms",
-    [
-        body("number").notEmpty().withMessage("number is required"),
-        body("name").notEmpty().withMessage("name is required"),
-        body("msg").notEmpty().withMessage("msg is required"),
-    ],
-    async (req, res, next) => {
-        const validationErrors = validationResult(req);
-        if (!validationErrors.isEmpty()) {
-            return res.status(400).send(validationErrors.array());
-        }
-        const { name, number, msg, description, type } = req.body;
-        const createdAt = new Date();
-        createdAt.setHours(createdAt.getHours() + 5);
-        createdAt.setMinutes(createdAt.getMinutes() + 30);
-        const sms = await Sms.create({
-            name,
-            number,
-            msg,
-            description,
-            type,
-            createdAt: createdAt,
-        });
-        res.status(201).send(sms);
-    }
-);
-app.get("/api/v1/sms", async (req, res, next) => {
-    try {
-        const sms = await Sms.find();
-        res.status(200).send({
-            success: true,
-            data: sms,
-        });
-    } catch (error) {
-        res.status(500).send({
-            success: false,
-            data: [],
-        });
-    }
-});
-
-app.get("/api/v1/sms/:id", async (req, res, next) => {
-    if (!mongoose.isValidObjectId(req.params.id)) {
-        res.status(400).send("Invalid Id");
-    }
-    const sms = await Sms.findById(req.params.id);
-    if (!sms) {
-        res.status(400).send("Not found");
-    }
-    res.status(200).send(sms);
-});
-
 app.delete("/api/v1/sms", async (req, res, next) => {
     await Sms.deleteMany();
     res.status(200).send("All sms are deleted");
@@ -190,4 +143,11 @@ app.get("/", async (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server listening on ${PORT}`);
 });
+//Route Import
+const userRoute = require("./routes/user");
+const smsRoute = require("./routes/sms");
+
+app.use("/api/v1", userRoute);
+app.use("/api/v1", smsRoute);
+
 start();
