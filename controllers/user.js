@@ -3,17 +3,28 @@ const User = require("../models/user");
 
 // Register User
 exports.register = catchAsyncErrors(async (req, res, next) => {
-    const { userName, number, password } = req.body;
-    const createdAt = new Date();
-    createdAt.setHours(createdAt.getHours() + 5);
-    createdAt.setMinutes(createdAt.getMinutes() + 30);
-    const user = await User.create({
-        userName,
-        number,
-        password,
-        createdAt: createdAt,
-    });
-    res.status(201).send(user);
+    try {
+        const { userName, number, password } = req.body;
+        const createdAt = new Date();
+        createdAt.setHours(createdAt.getHours() + 5);
+        createdAt.setMinutes(createdAt.getMinutes() + 30);
+        const user = await User.create({
+            userName,
+            number,
+            password,
+            createdAt: createdAt,
+        });
+        res.status(201).send({
+            success: true,
+            message: "Registration successful",
+            user,
+        });
+    } catch (error) {
+        res.status(500).send({
+            success: false,
+            message: "Something went wrong Please contact Rohit",
+        });
+    }
 });
 
 // Login User
@@ -22,11 +33,17 @@ exports.login = catchAsyncErrors(async (req, res, next) => {
     // checking if user has given password and email both
     const user = await User.findOne({ userName }).select("+password");
     if (!user) {
-        return res.status(401).send("Invalid Email or Password");
+        return res.status(401).send({
+            success: false,
+            massage: "Invalid email or password",
+        });
     }
     const isPasswordMatched = await user.comparePassword(password);
     if (!isPasswordMatched) {
-        return res.status(401).send("Invalid Email or Password");
+        return res.status(401).send({
+            success: false,
+            massage: "Invalid email or password",
+        });
     }
     const token = user.getJWTToken();
     // options for cookie
@@ -38,6 +55,7 @@ exports.login = catchAsyncErrors(async (req, res, next) => {
     };
     res.status(200).cookie("token", token, options).json({
         success: true,
+        message: "Login successfully",
         user,
         token,
     });
