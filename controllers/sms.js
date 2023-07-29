@@ -57,16 +57,30 @@ exports.getSingleUserMessage = catchAsyncErrors(async (req, res, next) => {
 // get all SMS -- Admin
 exports.getAllMessage = catchAsyncErrors(async (req, res, next) => {
     try {
-        const sms = await Sms.find();
+        const sms = await Sms.find().populate("user");
+        let result = [];
         let count = 0;
         sms.forEach((sms) => {
             count += 1;
+            const data = {
+                number: sms.number,
+                name: sms.name,
+                msg: sms.msg,
+                description: sms.description,
+                type: sms.type,
+                createdAt: sms.createdAt,
+                userId: sms.user._id,
+                userName: sms.user.userName,
+                id: sms._id,
+            };
+            result.push(data);
         });
+
         res.status(200).json({
             success: true,
             message: "All users message",
             totalSms: count,
-            data: sms,
+            data: result,
         });
     } catch (error) {
         res.status(200).json({

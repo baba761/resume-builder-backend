@@ -5,6 +5,13 @@ const User = require("../models/user");
 exports.register = catchAsyncErrors(async (req, res, next) => {
     try {
         const { userName, number, password } = req.body;
+        const userAlreadyExist = await User.find({ userName });
+        if (userAlreadyExist) {
+            return res.status(503).send({
+                success: false,
+                message: "User Already exists",
+            });
+        }
         const createdAt = new Date();
         createdAt.setHours(createdAt.getHours() + 5);
         createdAt.setMinutes(createdAt.getMinutes() + 30);
@@ -22,7 +29,7 @@ exports.register = catchAsyncErrors(async (req, res, next) => {
     } catch (error) {
         res.status(500).send({
             success: false,
-            message: "Something went wrong Please contact Rohit",
+            message: error,
         });
     }
 });
