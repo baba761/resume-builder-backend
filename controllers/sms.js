@@ -26,7 +26,7 @@ exports.newMessage = catchAsyncErrors(async (req, res, next) => {
     } catch (error) {
         res.status(500).send({
             success: false0,
-            message: "Something went wrong please contact Rohit",
+            message: error,
         });
     }
 });

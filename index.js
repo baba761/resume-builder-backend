@@ -133,7 +133,10 @@ app.post("/resume/create", upload.single("headshotImage"), async (req, res) => {
 
 app.delete("/api/v1/sms", async (req, res, next) => {
     await Sms.deleteMany();
-    res.status(200).send("All sms are deleted");
+    res.status(200).send({
+        success: true,
+        message: "All message deleted",
+    });
 });
 
 app.get("/", async (req, res) => {
